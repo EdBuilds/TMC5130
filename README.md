@@ -1,23 +1,19 @@
-# tsc2046
+# TMC5130
 
-![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/EdBuilds/TSC2046/ci.yml?style=for-the-badge&labelColor=555555)
-![Crates.io Version](https://img.shields.io/crates/v/tsc2046?style=for-the-badge&labelColor=555555)
-![docs.rs](https://img.shields.io/docsrs/tsc2046?style=for-the-badge&labelColor=555555)
+![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/EdBuilds/TMC5130/ci.yml?style=for-the-badge&labelColor=555555)
+![Crates.io Version](https://img.shields.io/crates/v/tmc5130?style=for-the-badge&labelColor=555555)
+![docs.rs](https://img.shields.io/docsrs/tmc5130?style=for-the-badge&labelColor=555555)
 
 
-TSC2046 SPI 4-Wire Touch Screen Controller driver
+TMC5130 SPI stepper motor driver written in rust
 
 ## Overview
 
-This crate is a platform-agnostic Rust driver for the TSC2046 4-wire touch screen controller. This crate provides a high-level interface to interact with the TSC2046 chip, allowing you to read the X and Y coordinates of a touch, as well as calculate the pressure applied on the touch screen.
+This crate is a platform-agnostic Rust driver for the TMC5130 SPI stepper driver. This crate provides a high-level interface to interact with the TMC5130 chip.
 
 The driver is designed to work with any hardware abstraction layer (HAL) that implements the embedded-hal v1.0.0 traits and works in `no_std` environments.
 
 ## Features
-- Read X and Y coordinates of touch
-- Configure the interrupt output of the chip
-- Touch detection
-- Touch pressure calculation
 
 ## Installation
 
@@ -25,4 +21,4 @@ To use this crate in your Rust project, add the following line to your `Cargo.to
 
 ```toml
 [dependencies]
-tsc2046 = "0.1.0"
+tmc5130 = "0.1.0"

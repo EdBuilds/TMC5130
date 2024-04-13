@@ -1,12 +1,12 @@
 [package]
-name = "tsc2046"
-description = "TSC2046 SPI 4-Wire Touch Screen Controller driver"
+name = "tmc5130"
+description = "TMC5130 SPI stepper motor driver"
 version = "0.1.0"
 edition = "2021"
 authors = ["Tamas Feher <tamas@edbuilds.net>"]
-keywords = ["spi", "tsc0246", "driver", "embedded", "hal"]
+keywords = ["spi", "tmc5130", "driver", "embedded", "hal"]
 categories = ["hardware-support", "no-std", "embedded"]
-repository = "https://github.com/EdBuilds/TSC2046"
+repository = "https://github.com/EdBuilds/TMC5130"
 readme = "README.md"
 license = "MIT"
 
