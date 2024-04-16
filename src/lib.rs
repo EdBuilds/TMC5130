@@ -3,6 +3,11 @@
 #[cfg(test)]
 mod mock_peripherals;
 mod types;
+#[macro_use]
+extern crate bitfield;
+
+pub mod reg;
+
 
 use embedded_hal::spi::{ErrorType, Operation, SpiDevice};
 use types::{Axes, ControlBit};
@@ -17,30 +22,28 @@ pub struct TouchPoint {
     /// The pressure value of the touch point, ranging from 0.0 (max pressure) to the set touch threshold.
     pub z: f32,
 }
-/// Driver for the TSC2046 4-wire touch screen controller.
-pub struct Tsc2046<SPI> {
-    /// The SPI interface used to communicate with the TSC2046 chip.
+/// Driver for the Tmc5130 4-wire touch screen controller.
+pub struct Tmc5130<SPI> {
+    /// The SPI interface used to communicate with the Tmc5130 chip.
     spi: SPI,
     /// Whether the interrupt pin is enabled or not.
     irq_on: bool,
     /// The minimum pressure value required to register a touch event.
     touch_threshold: f32,
 }
-impl<SPI> Tsc2046<SPI>
+impl<SPI> Tmc5130<SPI>
 where
     SPI: SpiDevice,
 {
-    /// Creates a new instance of the `Tsc2046` driver.
+    /// Creates a new instance of the `Tmc5130` driver.
     ///
     /// # Arguments
     ///
-    /// * `spi` - The SPI interface used to communicate with the TSC2046 chip.
-    /// * `irq_on` - Whether to enable the interrupt pin or not.
-    /// * `touch_threshold` - The minimum pressure value required to register a touch event.
+    /// * `spi` - The SPI interface used to communicate with the Tmc5130 chip.
     ///
     /// # Returns
     ///
-    /// A `Result` containing the `Tsc2046` instance or an error if the register update fails.
+    /// A `Result` containing the `Tmc5130` instance or an error if the register update fails.
     pub fn new(
         spi: SPI,
         irq_on: bool,
@@ -54,7 +57,7 @@ where
         instance.update_register()?;
         Ok(instance)
     }
-    /// Updates the control register of the TSC2046 chip.
+    /// Updates the control register of the Tmc5130 chip.
     ///
     /// # Returns
     ///
@@ -78,7 +81,7 @@ where
             Operation::Read(&mut buf),
         ])
     }
-    /// Reads the value of the specified axis from the TSC2046 chip.
+    /// Reads the value of the specified axis from the Tmc5130 chip.
     ///
     /// # Arguments
     ///
@@ -132,7 +135,7 @@ where
         self.touch_threshold = touch_threshold;
     }
 
-    /// Reads the touch point from the TSC2046 chip.
+    /// Reads the touch point from the Tmc5130 chip.
     ///
     /// # Returns
     ///
@@ -281,7 +284,7 @@ mod tests {
                 Ok(())
             });
         let mut test_driver =
-            Tsc2046::new(mock_spi_dev, false, 100.0).expect("Could not create driver");
+            Tmc5130::new(mock_spi_dev, false, 100.0).expect("Could not create driver");
         assert_eq!(test_driver.get_touch(), Ok(Some(expected_touch_point)));
     }
 
@@ -362,7 +365,7 @@ mod tests {
                 Ok(())
             });
         let mut test_driver =
-            Tsc2046::new(mock_spi_dev, false, 100.0).expect("Could not create driver");
+            Tmc5130::new(mock_spi_dev, false, 100.0).expect("Could not create driver");
         test_driver.set_irq(true).expect("Could not set IRQ");
         assert_eq!(test_driver.get_touch(), Ok(Some(expected_touch_point)));
     }

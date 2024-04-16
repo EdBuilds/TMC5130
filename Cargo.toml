@@ -15,5 +15,6 @@ license = "MIT"
 [dependencies]
 embedded-hal = "1.0.0"
 bitflags = "2.4.2"
+bitfield = "^0.13.2"
 [dev-dependencies]
 mockall = "0.12.1"
