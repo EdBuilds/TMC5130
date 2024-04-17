@@ -129,11 +129,11 @@ bitfield! {
     pub get, set: 0;
 }
 
-#[derive(Clone, Copy, Default, Eq, Hash, PartialEq)]
+#[derive(Clone, Copy, Default, Eq, Hash, PartialEq, Debug)]
 #[cfg_attr(feature = "hash", derive(hash32_derive::Hash32))]
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 #[cfg_attr(feature = "ufmt", derive(ufmt::derive::uDebug))]
-pub struct X_COMPARE(u32);
+pub struct X_COMPARE(pub u32);
 
 bitfield! {
     #[derive(Clone, Copy, Eq, Hash, PartialEq)]
@@ -200,7 +200,275 @@ bitfield! {
     u32;
     pub get, set: 19, 0;
 }
+bitfield! {
+    #[derive(Clone, Copy, Default, Eq, Hash, PartialEq)]
+    #[cfg_attr(feature = "hash", derive(hash32_derive::Hash32))]
+    #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
+    #[cfg_attr(feature = "ufmt", derive(ufmt::derive::uDebug))]
+    pub struct RAMPMODE(u32);
+    impl Debug;
+    u8;
+    pub get, set: 1, 0;
+}
 
+bitfield! {
+    #[derive(Clone, Copy, Default, Eq, Hash, PartialEq)]
+    #[cfg_attr(feature = "hash", derive(hash32_derive::Hash32))]
+    #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
+    #[cfg_attr(feature = "ufmt", derive(ufmt::derive::uDebug))]
+    pub struct XACTUAL(u32);
+    impl Debug;
+    i32;
+    pub get, _: 31, 0;
+}
+bitfield! {
+    #[derive(Clone, Copy, Default, Eq, Hash, PartialEq)]
+    #[cfg_attr(feature = "hash", derive(hash32_derive::Hash32))]
+    #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
+    #[cfg_attr(feature = "ufmt", derive(ufmt::derive::uDebug))]
+    pub struct VACTUAL(u32);
+    impl Debug;
+    i32;
+    pub get, _: 23, 0;
+}
+bitfield! {
+    #[derive(Clone, Copy, Default, Eq, Hash, PartialEq)]
+    #[cfg_attr(feature = "hash", derive(hash32_derive::Hash32))]
+    #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
+    #[cfg_attr(feature = "ufmt", derive(ufmt::derive::uDebug))]
+    pub struct VSTART(u32);
+    impl Debug;
+    u32;
+    pub get, set: 17, 0;
+}
+bitfield! {
+    #[derive(Clone, Copy, Default, Eq, Hash, PartialEq)]
+    #[cfg_attr(feature = "hash", derive(hash32_derive::Hash32))]
+    #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
+    #[cfg_attr(feature = "ufmt", derive(ufmt::derive::uDebug))]
+    pub struct A1(u32);
+    impl Debug;
+    u16;
+    pub get, set: 15, 0;
+}
+
+bitfield! {
+    #[derive(Clone, Copy, Default, Eq, Hash, PartialEq)]
+    #[cfg_attr(feature = "hash", derive(hash32_derive::Hash32))]
+    #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
+    #[cfg_attr(feature = "ufmt", derive(ufmt::derive::uDebug))]
+    pub struct V1(u32);
+    impl Debug;
+    u32;
+    pub get, set: 19, 0;
+}
+
+bitfield! {
+    #[derive(Clone, Copy, Default, Eq, Hash, PartialEq)]
+    #[cfg_attr(feature = "hash", derive(hash32_derive::Hash32))]
+    #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
+    #[cfg_attr(feature = "ufmt", derive(ufmt::derive::uDebug))]
+    pub struct AMAX(u32);
+    impl Debug;
+    u16;
+    pub get, set: 15, 0;
+}
+
+bitfield! {
+    #[derive(Clone, Copy, Default, Eq, Hash, PartialEq)]
+    #[cfg_attr(feature = "hash", derive(hash32_derive::Hash32))]
+    #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
+    #[cfg_attr(feature = "ufmt", derive(ufmt::derive::uDebug))]
+    pub struct VMAX(u32);
+    impl Debug;
+    u32;
+    pub get, set: 22, 0;
+}
+
+bitfield! {
+    #[derive(Clone, Copy, Default, Eq, Hash, PartialEq)]
+    #[cfg_attr(feature = "hash", derive(hash32_derive::Hash32))]
+    #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
+    #[cfg_attr(feature = "ufmt", derive(ufmt::derive::uDebug))]
+    pub struct DMAX(u32);
+    impl Debug;
+    u16;
+    pub get, set: 15, 0;
+}
+
+bitfield! {
+    #[derive(Clone, Copy, Default, Eq, Hash, PartialEq)]
+    #[cfg_attr(feature = "hash", derive(hash32_derive::Hash32))]
+    #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
+    #[cfg_attr(feature = "ufmt", derive(ufmt::derive::uDebug))]
+    pub struct D1(u32);
+    impl Debug;
+    u16;
+    pub get, set: 15, 0;
+}
+bitfield! {
+    #[derive(Clone, Copy, Default, Eq, Hash, PartialEq)]
+    #[cfg_attr(feature = "hash", derive(hash32_derive::Hash32))]
+    #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
+    #[cfg_attr(feature = "ufmt", derive(ufmt::derive::uDebug))]
+    pub struct VSTOP(u32);
+    impl Debug;
+    u32;
+    pub get, set: 17, 0;
+}
+
+bitfield! {
+    #[derive(Clone, Copy, Default, Eq, Hash, PartialEq)]
+    #[cfg_attr(feature = "hash", derive(hash32_derive::Hash32))]
+    #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
+    #[cfg_attr(feature = "ufmt", derive(ufmt::derive::uDebug))]
+    pub struct TZEROWAIT(u32);
+    impl Debug;
+    u16;
+    pub get, set: 15, 0;
+}
+bitfield! {
+    #[derive(Clone, Copy, Default, Eq, Hash, PartialEq)]
+    #[cfg_attr(feature = "hash", derive(hash32_derive::Hash32))]
+    #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
+    #[cfg_attr(feature = "ufmt", derive(ufmt::derive::uDebug))]
+    pub struct XTARGET(u32);
+    impl Debug;
+    i32;
+    pub get, set: 31, 0;
+}
+
+bitfield! {
+    #[derive(Clone, Copy, Default, Eq, Hash, PartialEq)]
+    #[cfg_attr(feature = "hash", derive(hash32_derive::Hash32))]
+    #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
+    #[cfg_attr(feature = "ufmt", derive(ufmt::derive::uDebug))]
+    pub struct VDCMIN(u32);
+    impl Debug;
+    u32;
+    pub get, set: 22, 0;
+}
+
+bitfield! {
+    #[derive(Clone, Copy, Default, Eq, Hash, PartialEq)]
+    #[cfg_attr(feature = "hash", derive(hash32_derive::Hash32))]
+    #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
+    #[cfg_attr(feature = "ufmt", derive(ufmt::derive::uDebug))]
+    pub struct SW_MODE(u32);
+    impl Debug;
+    u16;
+    pub stop_l_enable, set_stop_l_enable: 0;
+    pub stop_r_enable, set_stop_r_enable: 1;
+    pub pol_stop_l, set_pol_stop_l: 2;
+    pub pol_stop_r, set_pol_stop_r: 3;
+    pub swap_lr, set_swap_lr: 4;
+    pub latch_l_active, set_latch_l_active: 5;
+    pub latch_l_inactive, set_latch_l_inactive: 6;
+    pub latch_r_active, set_latch_r_active: 7;
+    pub latch_r_inactive, set_latch_r_inactive: 8;
+    pub en_latch_encoder, set_en_latch_encoder: 9;
+    pub sg_stop, set_sg_stop: 10;
+    pub en_softstop, set_en_softstop: 11;
+}
+bitfield! {
+    #[derive(Clone, Copy, Default, Eq, Hash, PartialEq)]
+    #[cfg_attr(feature = "hash", derive(hash32_derive::Hash32))]
+    #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
+    #[cfg_attr(feature = "ufmt", derive(ufmt::derive::uDebug))]
+    pub struct RAMP_STAT(u32);
+    impl Debug;
+    u16;
+    pub status_stop_l, _: 0;
+    pub status_stop_r, _: 1;
+    pub status_latch_l, set_status_latch_l: 2;
+    pub status_latch_r, set_status_latch_r: 3;
+    pub event_stop_l, _: 4;
+    pub event_stop_r, _: 5;
+    pub event_stop_sg, set_event_stop_sg: 6;
+    pub event_pos_reached, set_event_pos_reached: 7;
+    pub velocity_reached, _: 8;
+    pub position_reached, _: 9;
+    pub vzero, _: 10;
+    pub t_zerowait_active, _: 11;
+    pub second_move, set_second_move: 12;
+    pub status_sg, _: 13;
+}
+
+#[derive(Clone, Copy, Default, Eq, Hash, PartialEq, Debug)]
+#[cfg_attr(feature = "hash", derive(hash32_derive::Hash32))]
+#[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
+#[cfg_attr(feature = "ufmt", derive(ufmt::derive::uDebug))]
+pub struct XLATCH(pub u32);
+
+#[derive(Clone, Copy, Default, Eq, Hash, PartialEq, Debug)]
+#[cfg_attr(feature = "hash", derive(hash32_derive::Hash32))]
+#[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
+#[cfg_attr(feature = "ufmt", derive(ufmt::derive::uDebug))]
+pub struct MSLUT0(pub u32);
+#[derive(Clone, Copy, Default, Eq, Hash, PartialEq, Debug)]
+#[cfg_attr(feature = "hash", derive(hash32_derive::Hash32))]
+#[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
+#[cfg_attr(feature = "ufmt", derive(ufmt::derive::uDebug))]
+pub struct MSLUT1(pub u32);
+#[derive(Clone, Copy, Default, Eq, Hash, PartialEq, Debug)]
+#[cfg_attr(feature = "hash", derive(hash32_derive::Hash32))]
+#[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
+#[cfg_attr(feature = "ufmt", derive(ufmt::derive::uDebug))]
+pub struct MSLUT2(pub u32);
+#[derive(Clone, Copy, Default, Eq, Hash, PartialEq, Debug)]
+#[cfg_attr(feature = "hash", derive(hash32_derive::Hash32))]
+#[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
+#[cfg_attr(feature = "ufmt", derive(ufmt::derive::uDebug))]
+pub struct MSLUT3(pub u32);
+#[derive(Clone, Copy, Default, Eq, Hash, PartialEq, Debug)]
+#[cfg_attr(feature = "hash", derive(hash32_derive::Hash32))]
+#[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
+#[cfg_attr(feature = "ufmt", derive(ufmt::derive::uDebug))]
+pub struct MSLUT4(pub u32);
+#[derive(Clone, Copy, Default, Eq, Hash, PartialEq, Debug)]
+#[cfg_attr(feature = "hash", derive(hash32_derive::Hash32))]
+#[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
+#[cfg_attr(feature = "ufmt", derive(ufmt::derive::uDebug))]
+pub struct MSLUT5(pub u32);
+#[derive(Clone, Copy, Default, Eq, Hash, PartialEq, Debug)]
+#[cfg_attr(feature = "hash", derive(hash32_derive::Hash32))]
+#[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
+#[cfg_attr(feature = "ufmt", derive(ufmt::derive::uDebug))]
+pub struct MSLUT6(pub u32);
+#[derive(Clone, Copy, Default, Eq, Hash, PartialEq, Debug)]
+#[cfg_attr(feature = "hash", derive(hash32_derive::Hash32))]
+#[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
+#[cfg_attr(feature = "ufmt", derive(ufmt::derive::uDebug))]
+pub struct MSLUT7(pub u32);
+
+bitfield! {
+    #[derive(Clone, Copy, Default, Eq, Hash, PartialEq)]
+    #[cfg_attr(feature = "hash", derive(hash32_derive::Hash32))]
+    #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
+    #[cfg_attr(feature = "ufmt", derive(ufmt::derive::uDebug))]
+    pub struct MSLUTSEL(u32);
+    impl Debug;
+    u16;
+    pub w0, set_w0: 1, 0;
+    pub w1, set_w1: 3, 2;
+    pub w2, set_w2: 5, 4;
+    pub w3, set_w3: 7, 6;
+    pub x1, set_x1: 15, 8;
+    pub x2, set_x2: 23, 16;
+    pub x3, set_x3: 31, 24;
+}
+
+bitfield! {
+    #[derive(Clone, Copy, Default, Eq, Hash, PartialEq)]
+    #[cfg_attr(feature = "hash", derive(hash32_derive::Hash32))]
+    #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
+    #[cfg_attr(feature = "ufmt", derive(ufmt::derive::uDebug))]
+    pub struct MSLUTSTART(u32);
+    impl Debug;
+    u32;
+    pub start_sin, set_start_sin: 7, 0;
+    pub start_sin90, set_start_sin90: 23, 16;
+}
 #[derive(Clone, Copy, Debug, Default, Eq, Hash, PartialEq)]
 #[cfg_attr(feature = "hash", derive(hash32_derive::Hash32))]
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
@@ -231,8 +499,23 @@ bitfield! {
     pub semax, set_semax: 11, 8;
     pub sedn, set_sedn: 14, 13;
     pub seimin, set_seimin: 15;
+    i8;
+    pub sgt, set_sgt: 22,16;
+    u16;
+    pub sfilt, set_sfilt: 24;
 }
 
+bitfield! {
+    #[derive(Clone, Copy, Default, Eq, Hash, PartialEq)]
+    #[cfg_attr(feature = "hash", derive(hash32_derive::Hash32))]
+    #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
+    #[cfg_attr(feature = "ufmt", derive(ufmt::derive::uDebug))]
+    pub struct DCCTRL(u32);
+    impl Debug;
+    u16;
+    pub dc_time, set_dc_time: 9, 0;
+    pub dc_sg, set_dc_sg: 23, 16;
+}
 bitfield! {
     #[derive(Clone, Copy, Default, Eq, Hash, PartialEq)]
     #[cfg_attr(feature = "hash", derive(hash32_derive::Hash32))]
@@ -267,13 +550,19 @@ bitfield! {
     pub toff, set_toff: 3, 0;
     pub hstrt, set_hstrt: 6, 4;
     pub hend, set_hend: 10, 7;
+    pub fd3, set_fd3:  11;
+    pub disfdcc, set_disfdcc: 12;
+    pub rndtf, set_rndtf: 13;
+    pub chm, set_chm: 14;
     pub tbl, set_tbl: 16, 15;
     pub vsense, set_vsense: 17;
+    pub vhighfs, set_vhighfs: 18;
+    pub vhighchm, set_vhighchm: 19;
+    pub sync, set_sync: 23, 20;
     pub mres, set_mres: 27, 24;
-    pub ntpol, set_intpol: 28;
+    pub intpol, set_intpol: 28;
     pub dedge, set_dedge: 29;
     pub diss2g, set_diss2g: 30;
-    pub diss2vs, set_diss2vs: 31;
 }
 
 bitfield! {
@@ -284,20 +573,16 @@ bitfield! {
     pub struct DRV_STATUS(u32);
     impl Debug;
     u32;
-    pub otpw, _: 0;
-    pub ot, _: 1;
-    pub s2ga, _: 2;
-    pub s2gb, _: 3;
-    pub s2vsa, _: 4;
-    pub s2vsb, _: 5;
-    pub ola, _: 6;
-    pub olb, _: 7;
-    pub t120, _: 8;
-    pub t143, _: 9;
-    pub t150, _: 10;
-    pub t157, _: 11;
+    pub sg_result, _: 9,0;
+    pub fsactive, _: 15;
     pub cs_actual, _: 20, 16;
-    pub stealth, _: 30;
+    pub stallguard, _: 24;
+    pub ot, _: 25;
+    pub otpw, _: 26;
+    pub s2ga, _: 27;
+    pub s2gb, _: 28;
+    pub ola, _: 29;
+    pub olb, _: 30;
     pub stst, _: 31;
 }
 
@@ -309,14 +594,12 @@ bitfield! {
     pub struct PWMCONF(u32);
     impl Debug;
     u8;
-    pub pwm_ofs, set_pwm_ofs: 7, 0;
+    pub pwm_ampl, set_pwm_ampl: 7, 0;
     pub pwm_grad, set_pwm_grad: 15, 8;
     pub pwm_freq, set_pwm_freq: 17, 16;
     pub pwm_autoscale, set_pwm_autoscale: 18;
-    pub pwm_autograd, set_pwm_autograd: 19;
+    pub pwm_symmetric, set_pwm_symmetric: 19;
     pub freewheel, set_freewheel: 21, 20;
-    pub pwm_reg, set_pwm_reg: 27, 24;
-    pub pwm_lim, set_pwm_lim: 31, 28;
 }
 
 bitfield! {
@@ -327,9 +610,7 @@ bitfield! {
     pub struct PWM_SCALE(u32);
     impl Debug;
     u8;
-    pub pwm_scale_sum, _: 7, 0;
-    u16;
-    pub pwm_scale_auto, _: 24, 16;
+    pub get, _: 7, 0;
 }
 
 bitfield! {
@@ -337,13 +618,23 @@ bitfield! {
     #[cfg_attr(feature = "hash", derive(hash32_derive::Hash32))]
     #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
     #[cfg_attr(feature = "ufmt", derive(ufmt::derive::uDebug))]
-    pub struct PWM_AUTO(u32);
+    pub struct ENCM_CTRL(u32);
     impl Debug;
     u8;
-    pub pwm_ofs_auto, _: 7, 0;
-    pub pwm_grad_auto, _: 23, 16;
+    pub inv, set_inv: 0;
+    pub maxspeed, set_maxspeed: 1;
 }
 
+bitfield! {
+    #[derive(Clone, Copy, Default, Eq, Hash, PartialEq)]
+    #[cfg_attr(feature = "hash", derive(hash32_derive::Hash32))]
+    #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
+    #[cfg_attr(feature = "ufmt", derive(ufmt::derive::uDebug))]
+    pub struct LOST_STEPS(u32);
+    impl Debug;
+    u32;
+    pub get, _: 19, 0;
+}
 // Implementation Macros
 // --------------------------------------------------------
 
@@ -765,6 +1056,7 @@ impl_registers! {
     RW 0x34 SW_MODE sw_mode sw_mode_mut,
     RW 0x35 RAMP_STAT ramp_stat ramp_stat_mut,
     R 0x36 XLATCH xlatch xlatch_mut,
+    //encoder registers missing
     W 0x60 MSLUT0 mslut0 mslut0_mut,
     W 0x61 MSLUT1 mslut1 mslut1_mut,
     W 0x62 MSLUT2 mslut2 mslut2_mut,
@@ -819,31 +1111,6 @@ impl Default for PWMCONF {
     }
 }
 
-impl Default for TPOWERDOWN {
-    fn default() -> Self {
-        Self(20)
-    }
-}
 
 // Sanity Checks
 // --------------------------------------------------------
-
-#[test]
-fn test_slaveconf() {
-    let mut s = SLAVECONF(0);
-    assert_eq!(s.0, 0b000000000000);
-    s.set(15);
-    assert_eq!(s.0, 0b111100000000);
-}
-
-#[test]
-fn test_gconf() {
-    let mut g = GCONF(0);
-    assert_eq!(g.0, 0b0000000000);
-    g.set_i_scale_analog(true);
-    assert_eq!(g.0, 0b0000000001);
-    g.set_test_mode(true);
-    assert_eq!(g.0, 0b1000000001);
-    g = Default::default();
-    assert_eq!(g.0, 0x00000041);
-}
