@@ -9,32 +9,19 @@ extern crate bitfield;
 pub mod reg;
 
 
-use embedded_hal::spi::{ErrorType, Operation, SpiDevice};
+use embedded_hal::spi::{ErrorType, Operation, SpiBus, SpiDevice};
 use types::{Axes, ControlBit};
 
-#[derive(Debug, PartialEq)]
-/// Struct representing a touch point on the touch screen.
-pub struct TouchPoint {
-    /// The x-coordinate of the touch point, ranging from 0 to 4096.
-    pub x: u16,
-    /// The y-coordinate of the touch point, ranging from 0 to 4096.
-    pub y: u16,
-    /// The pressure value of the touch point, ranging from 0.0 (max pressure) to the set touch threshold.
-    pub z: f32,
-}
 /// Driver for the Tmc5130 4-wire touch screen controller.
 pub struct Tmc5130<SPI> {
     /// The SPI interface used to communicate with the Tmc5130 chip.
     spi: SPI,
-    /// Whether the interrupt pin is enabled or not.
-    irq_on: bool,
-    /// The minimum pressure value required to register a touch event.
-    touch_threshold: f32,
 }
 impl<SPI> Tmc5130<SPI>
 where
     SPI: SpiDevice,
 {
+    const RW_BIT: u8 = 0b1000_0000;
     /// Creates a new instance of the `Tmc5130` driver.
     ///
     /// # Arguments
@@ -46,116 +33,17 @@ where
     /// A `Result` containing the `Tmc5130` instance or an error if the register update fails.
     pub fn new(
         spi: SPI,
-        irq_on: bool,
-        touch_threshold: f32,
     ) -> Result<Self, <SPI as ErrorType>::Error> {
         let mut instance = Self {
             spi,
-            irq_on,
-            touch_threshold,
         };
-        instance.update_register()?;
         Ok(instance)
     }
-    /// Updates the control register of the Tmc5130 chip.
-    ///
-    /// # Returns
-    ///
-    /// A `Result` indicating whether the register update was successful or not.
-    fn update_register(&mut self) -> Result<(), <SPI as ErrorType>::Error> {
-        let mut control_word = ControlBit::S; //start bit always on
-        control_word &= !ControlBit::MODE; // 12 bit mode
-        control_word &= !ControlBit::SER; // enable differential mode
-        control_word |= Axes::X.ctrl_bits();
-        if self.irq_on {
-            control_word &= !ControlBit::PD0;
-            control_word &= !ControlBit::PD1;
-        } else {
-            control_word |= ControlBit::PD0;
-            control_word |= ControlBit::PD1;
-        }
-
-        let mut buf = [0_u8; 2];
-        self.spi.transaction(&mut [
-            Operation::Write(&[control_word.bits()]),
-            Operation::Read(&mut buf),
-        ])
-    }
-    /// Reads the value of the specified axis from the Tmc5130 chip.
-    ///
-    /// # Arguments
-    ///
-    /// * `axis` - The axis to read.
-    ///
-    /// # Returns
-    ///
-    /// A `Result` containing the raw value of the specified axis or an error if the read fails.
-    fn read_axis(&mut self, axis: Axes) -> Result<u16, <SPI as ErrorType>::Error> {
-        let mut control_word = ControlBit::S; //start bit always on
-        control_word &= !ControlBit::MODE; // 12 bit mode
-        control_word &= !ControlBit::SER; // enable differential mode
-        control_word |= axis.ctrl_bits();
-
-        if self.irq_on {
-            control_word &= !ControlBit::PD0;
-            control_word &= !ControlBit::PD1;
-        } else {
-            control_word |= ControlBit::PD0;
-            control_word |= ControlBit::PD1;
-        }
-
-        let mut buf = [0_u8; 2];
-        self.spi.transaction(&mut [
-            Operation::Write(&[control_word.bits()]),
-            Operation::Read(&mut buf),
-        ])?;
-        Ok((((buf[0] as u16) << 8 | buf[1] as u16) >> 3) & 0xFFF)
-    }
-
-    /// Enables or disables the interrupt pin.
-    ///
-    /// # Arguments
-    ///
-    /// * `enable_irq` - Whether to enable or disable the interrupt pin.
-    ///
-    /// # Returns
-    ///
-    /// A `Result` indicating whether the interrupt pin configuration was successful or not.
-    pub fn set_irq(&mut self, enable_irq: bool) -> Result<(), <SPI as ErrorType>::Error> {
-        self.irq_on = enable_irq;
-        self.update_register()
-    }
-
-    /// Sets the minimum pressure value required to register a touch event.
-    ///
-    /// # Arguments
-    ///
-    /// * `touch_threshold` - The minimum pressure value (between 0.0 and inf).   
-    pub fn set_touch_threshold(&mut self, touch_threshold: f32) {
-        self.touch_threshold = touch_threshold;
-    }
-
-    /// Reads the touch point from the Tmc5130 chip.
-    ///
-    /// # Returns
-    ///
-    /// A `Result` containing the `TouchPoint` struct if a touch event is detected, or `None` if no touch event is detected or an error occurs during the read operation.
-    /// The `x` and `y` coordinates of the `TouchPoint` are in the range of 0 to 4096.
-    pub fn get_touch(&mut self) -> Result<Option<TouchPoint>, <SPI as ErrorType>::Error> {
-        let x_raw = self.read_axis(Axes::X)?;
-        let y_raw = self.read_axis(Axes::Y)?;
-        let z1_raw = self.read_axis(Axes::Z1)?;
-        let z2_raw = self.read_axis(Axes::Z2)?;
-        let z_value = x_raw as f32 / 4096_f32 * (z2_raw as f32 / z1_raw as f32 - 1.0f32);
-        if z_value < self.touch_threshold {
-            Ok(Some(TouchPoint {
-                x: x_raw,
-                y: y_raw,
-                z: z_value,
-            }))
-        } else {
-            Ok(None)
-        }
+    pub fn read_register<R>(&self) -> Result<R, <SPI as ErrorType>::Error>
+    where R: reg::ReadableRegister
+    {
+        let address = R::ADDRESS as u8 & !Self::RW_BIT;
+        Ok(R::from(0))
     }
 }
 
@@ -241,11 +129,6 @@ mod tests {
             MockOperation::Write(&[CTRL_WORD_Z2_NO_IRQ]),
             MockOperation::Read(&READ_Z2_RETURN_BUF),
         ];
-        let expected_touch_point = TouchPoint {
-            x: 100,
-            y: 100,
-            z: 10.0f32,
-        };
         let mut mock_spi_dev = MockSimpleHalSpiDevice::new();
 
         mock_spi_dev
@@ -284,8 +167,7 @@ mod tests {
                 Ok(())
             });
         let mut test_driver =
-            Tmc5130::new(mock_spi_dev, false, 100.0).expect("Could not create driver");
-        assert_eq!(test_driver.get_touch(), Ok(Some(expected_touch_point)));
+            Tmc5130::new(mock_spi_dev).expect("Could not create driver");
     }
 
     #[test]
@@ -315,11 +197,6 @@ mod tests {
             MockOperation::Write(&[CTRL_WORD_Z2_IRQ]),
             MockOperation::Read(&READ_Z2_RETURN_BUF),
         ];
-        let expected_touch_point = TouchPoint {
-            x: 100,
-            y: 100,
-            z: 10.0f32,
-        };
         let mut mock_spi_dev = MockSimpleHalSpiDevice::new();
 
         mock_spi_dev
@@ -365,8 +242,6 @@ mod tests {
                 Ok(())
             });
         let mut test_driver =
-            Tmc5130::new(mock_spi_dev, false, 100.0).expect("Could not create driver");
-        test_driver.set_irq(true).expect("Could not set IRQ");
-        assert_eq!(test_driver.get_touch(), Ok(Some(expected_touch_point)));
+            Tmc5130::new(mock_spi_dev).expect("Could not create driver");
     }
 }
