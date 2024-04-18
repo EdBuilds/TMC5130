@@ -1101,7 +1101,7 @@ impl Default for IHOLD_IRUN {
 
 impl Default for CHOPCONF {
     fn default() -> Self {
-        Self(0x10000053)
+        Self(0x00000000)
     }
 }
 

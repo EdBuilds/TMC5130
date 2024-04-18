@@ -5,11 +5,11 @@ mod mock_peripherals;
 mod types;
 #[macro_use]
 extern crate bitfield;
-
 pub mod reg;
 
 
 use embedded_hal::spi::{ErrorType, Operation, SpiBus, SpiDevice};
+use core::borrow::BorrowMut;
 use types::{Axes, ControlBit};
 
 /// Driver for the Tmc5130 4-wire touch screen controller.
@@ -39,11 +39,33 @@ where
         };
         Ok(instance)
     }
-    pub fn read_register<R>(&self) -> Result<R, <SPI as ErrorType>::Error>
+    fn as_u32_be(array: &[u8]) -> u32 {
+        ((array[0] as u32) << 24) +
+            ((array[1] as u32) << 16) +
+            ((array[2] as u32) << 8) +
+            ((array[3] as u32) << 0)
+    }
+    pub fn read_register<R>(&mut self) -> Result<R, <SPI as ErrorType>::Error>
     where R: reg::ReadableRegister
     {
         let address = R::ADDRESS as u8 & !Self::RW_BIT;
-        Ok(R::from(0))
+
+        let mut address_buffer = [address;1];
+        let mut data_buffer = [0u8;4];
+        self.spi.transaction(&mut [Operation::TransferInPlace(address_buffer.borrow_mut()), Operation::TransferInPlace(data_buffer.borrow_mut())])?;
+        let mut address_buffer = [address;1];
+        self.spi.transaction(&mut [Operation::TransferInPlace(address_buffer.borrow_mut()), Operation::TransferInPlace(data_buffer.borrow_mut())])?;
+
+        Ok(R::from(u32::from_be_bytes(data_buffer)))
+    }
+    pub fn write_register<R>(&mut self, register:R) -> Result<(), <SPI as ErrorType>::Error>
+        where R: reg::WritableRegister
+    {
+        let address = R::ADDRESS as u8 | Self::RW_BIT;
+        let mut address_buffer = [address;1];
+        let mut data_buffer = (<R as Into<u32>>::into(register)).to_be_bytes();
+        self.spi.transaction(&mut [Operation::TransferInPlace(address_buffer.borrow_mut()), Operation::TransferInPlace(data_buffer.borrow_mut())])?;
+        Ok(())
     }
 }
 
@@ -168,6 +190,14 @@ mod tests {
             });
         let mut test_driver =
             Tmc5130::new(mock_spi_dev).expect("Could not create driver");
+        let mut chopconf = reg::CHOPCONF::default();
+        chopconf.set_toff(3);
+        chopconf.set_hstrt(4);
+        chopconf.set_hend(1);
+        chopconf.set_tbl(2);
+        chopconf.set_chm(false);
+        test_driver.write_register(chopconf).unwrap();
+
     }
 
     #[test]
