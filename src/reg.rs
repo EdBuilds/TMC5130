@@ -36,6 +36,24 @@ pub struct UnexpectedAddress;
 
 // Register Declarations
 // --------------------------------------------------------
+bitfield! {
+    #[derive(Clone, Copy, Eq, Hash, PartialEq)]
+    #[cfg_attr(feature = "hash", derive(hash32_derive::Hash32))]
+    #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
+    #[cfg_attr(feature = "ufmt", derive(ufmt::derive::uDebug))]
+    #[cfg_attr(feature = "defmt", derive(defmt::Format))]
+    pub struct SPISTATUS(u8);
+    impl Debug;
+    u8;
+    pub reset_flag, _: 0;
+    pub driver_error, _: 1;
+    pub sg2, _: 2;
+    pub standstill, _: 3;
+    pub velocity_reached, _: 4;
+    pub position_reached, _: 5;
+    pub status_stop_l, _: 6;
+    pub status_stop_r, _: 7;
+}
 
 bitfield! {
     #[derive(Clone, Copy, Eq, Hash, PartialEq)]
@@ -47,7 +65,7 @@ bitfield! {
     u16;
     pub i_scale_analog, set_i_scale_analog: 0;
     pub internal_rsense, set_internal_rsense: 1;
-    pub en_spread_cycle, set_en_spread_cycle: 2;
+    pub en_pwm_mode, set_en_pwm_mode: 2;
     pub enc_commutation, set_enc_commutation: 3;
     pub shaft, set_shaft: 4;
     pub diag0_error, set_diag0_error: 5;
@@ -82,6 +100,7 @@ bitfield! {
 #[cfg_attr(feature = "hash", derive(hash32_derive::Hash32))]
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 #[cfg_attr(feature = "ufmt", derive(ufmt::derive::uDebug))]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub struct IFCNT(pub u32);
 
 bitfield! {
@@ -1089,7 +1108,7 @@ impl VACTUAL {
 
 impl Default for GCONF {
     fn default() -> Self {
-        Self(0x00000041)
+        Self(0x00000000)
     }
 }
 

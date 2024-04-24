@@ -2,7 +2,6 @@
 
 #[cfg(test)]
 mod mock_peripherals;
-mod types;
 #[macro_use]
 extern crate bitfield;
 pub mod reg;
@@ -10,16 +9,20 @@ pub mod reg;
 
 use embedded_hal::spi::{ErrorType, Operation, SpiBus, SpiDevice};
 use core::borrow::BorrowMut;
-use types::{Axes, ControlBit};
+use crate::reg::{Address, SPISTATUS, State};
 
 /// Driver for the Tmc5130 4-wire touch screen controller.
 pub struct Tmc5130<SPI> {
     /// The SPI interface used to communicate with the Tmc5130 chip.
     spi: SPI,
 }
+pub enum Action {
+    read(State, Address),
+    write(State, Address)
+}
 impl<SPI> Tmc5130<SPI>
 where
-    SPI: SpiDevice,
+    SPI: SpiDevice<u8>,
 {
     const RW_BIT: u8 = 0b1000_0000;
     /// Creates a new instance of the `Tmc5130` driver.
@@ -33,11 +36,11 @@ where
     /// A `Result` containing the `Tmc5130` instance or an error if the register update fails.
     pub fn new(
         spi: SPI,
-    ) -> Result<Self, <SPI as ErrorType>::Error> {
+    ) -> Self{
         let mut instance = Self {
             spi,
         };
-        Ok(instance)
+        instance
     }
     fn as_u32_be(array: &[u8]) -> u32 {
         ((array[0] as u32) << 24) +
@@ -45,7 +48,7 @@ where
             ((array[2] as u32) << 8) +
             ((array[3] as u32) << 0)
     }
-    pub fn read_register<R>(&mut self) -> Result<R, <SPI as ErrorType>::Error>
+    pub fn read_register<R>(&mut self) -> Result<(reg::SPISTATUS, R), <SPI as ErrorType>::Error>
     where R: reg::ReadableRegister
     {
         let address = R::ADDRESS as u8 & !Self::RW_BIT;
@@ -55,17 +58,46 @@ where
         self.spi.transaction(&mut [Operation::TransferInPlace(address_buffer.borrow_mut()), Operation::TransferInPlace(data_buffer.borrow_mut())])?;
         let mut address_buffer = [address;1];
         self.spi.transaction(&mut [Operation::TransferInPlace(address_buffer.borrow_mut()), Operation::TransferInPlace(data_buffer.borrow_mut())])?;
+        let status = reg::SPISTATUS(address_buffer[0]);
 
-        Ok(R::from(u32::from_be_bytes(data_buffer)))
+        Ok((status,R::from(u32::from_be_bytes(data_buffer))))
     }
-    pub fn write_register<R>(&mut self, register:R) -> Result<(), <SPI as ErrorType>::Error>
+    pub fn bulk_register_action(&mut self, actions: &mut [Action]) -> Result<(), <SPI as ErrorType>::Error>
+    {
+        let act_len = actions.len();
+        let mut extra_transmission = false;
+        if let Some(Action::read(_,_)) = actions.last() {
+            extra_transmission =true;
+        }
+
+        for i in 0..act_len {
+            let (mut address_buf,mut data_buf)  = match actions[i] {
+                Action::read(state, addr) => {
+                    let state_num: u32 = state.into();
+                    ([addr as u8 | Self::RW_BIT;1], state_num.to_be_bytes())
+                }
+                Action::write(state, addr) => {
+                    let state_num: u32 = state.into();
+                    ([addr as u8 & ! Self::RW_BIT;1], state_num.to_be_bytes())
+                }
+            };
+            self.spi.transaction(&mut [Operation::TransferInPlace(address_buf.borrow_mut()), Operation::TransferInPlace(data_buf.borrow_mut())])?;
+            if i > 0 {
+                if let Action::read(mut last_state, mut last_addr) = actions[i-1] {
+                    last_state = State::from_addr_and_data(last_state.addr(), u32::from_be_bytes(data_buf));
+                }
+            }
+        }
+        Ok(())
+    }
+    pub fn write_register<R>(&mut self, register:R) -> Result<reg::SPISTATUS, <SPI as ErrorType>::Error>
         where R: reg::WritableRegister
     {
         let address = R::ADDRESS as u8 | Self::RW_BIT;
         let mut address_buffer = [address;1];
         let mut data_buffer = (<R as Into<u32>>::into(register)).to_be_bytes();
         self.spi.transaction(&mut [Operation::TransferInPlace(address_buffer.borrow_mut()), Operation::TransferInPlace(data_buffer.borrow_mut())])?;
-        Ok(())
+        Ok(reg::SPISTATUS(address_buffer[0]))
     }
 }
 
