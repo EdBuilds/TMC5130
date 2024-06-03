@@ -41,7 +41,6 @@ bitfield! {
     #[cfg_attr(feature = "hash", derive(hash32_derive::Hash32))]
     #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
     #[cfg_attr(feature = "ufmt", derive(ufmt::derive::uDebug))]
-    #[cfg_attr(feature = "defmt", derive(defmt::Format))]
     pub struct SPISTATUS(u8);
     impl Debug;
     u8;
@@ -55,6 +54,13 @@ bitfield! {
     pub status_stop_r, _: 7;
 }
 
+#[cfg(feature = "defmt")]
+impl defmt::Format for SPISTATUS {
+    fn format(&self, fmt: defmt::Formatter) {
+        // Format as hexadecimal.
+        defmt::write!(fmt, "(reset:{=bool}, driver_error:{=bool} sg2:{=bool}, standstill:{=bool},  velocity_reached:{=bool}, position_reached:{=bool}, stop_l:{=bool}, stop_r:{=bool}", self.reset_flag(), self.driver_error(), self.sg2(), self.standstill(), self.velocity_reached(), self.position_reached(), self.status_stop_l(), self.status_stop_r());
+    }
+}
 bitfield! {
     #[derive(Clone, Copy, Eq, Hash, PartialEq)]
     #[cfg_attr(feature = "hash", derive(hash32_derive::Hash32))]

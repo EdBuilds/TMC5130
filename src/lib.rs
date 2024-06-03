@@ -16,9 +16,9 @@ pub struct Tmc5130<SPI> {
     /// The SPI interface used to communicate with the Tmc5130 chip.
     spi: SPI,
 }
-pub enum Action {
-    read(State, Address),
-    write(State, Address)
+pub enum Action<'a> {
+    read(&'a mut State),
+    write(&'a State)
 }
 impl<SPI> Tmc5130<SPI>
 where
@@ -66,28 +66,41 @@ where
     {
         let act_len = actions.len();
         let mut extra_transmission = false;
-        if let Some(Action::read(_,_)) = actions.last() {
+        if let Some(Action::read(_)) = actions.last() {
             extra_transmission =true;
         }
 
         for i in 0..act_len {
-            let (mut address_buf,mut data_buf)  = match actions[i] {
-                Action::read(state, addr) => {
-                    let state_num: u32 = state.into();
-                    ([addr as u8 | Self::RW_BIT;1], state_num.to_be_bytes())
+            let (mut address_buf,mut data_buf)  = match actions[i].borrow_mut() {
+                Action::read(state) => {
+                    //defmt::info!("Read address: {}", (state.reg()::ADDRESS) as u8);
+                    defmt::info!("Read state address: {:x}", state.addr() as u8);
+                    defmt::info!("buf: {:x}", state.addr() as u8 | Self::RW_BIT);
+                    let state_num: u32 = (*(*state)).into();
+                    ([state.addr() as u8 & ! Self::RW_BIT;1], state_num.to_be_bytes())
                 }
-                Action::write(state, addr) => {
-                    let state_num: u32 = state.into();
-                    ([addr as u8 & ! Self::RW_BIT;1], state_num.to_be_bytes())
+                Action::write(state) => {
+                    let state_num: u32 = (*(*state)).into();
+                    ([state.addr() as u8 | Self::RW_BIT;1], state_num.to_be_bytes())
                 }
             };
             self.spi.transaction(&mut [Operation::TransferInPlace(address_buf.borrow_mut()), Operation::TransferInPlace(data_buf.borrow_mut())])?;
             if i > 0 {
-                if let Action::read(mut last_state, mut last_addr) = actions[i-1] {
-                    last_state = State::from_addr_and_data(last_state.addr(), u32::from_be_bytes(data_buf));
+                if let Action::read(last_state) = &mut actions[i-1] {
+                    **last_state= reg::State::from_addr_and_data(last_state.addr(), u32::from_be_bytes(data_buf));
                 }
             }
         }
+        if extra_transmission {
+            // Last transaction was a read. we need another read to get the data out.
+            if let Action::read(last_state) = &mut actions[act_len-1] {
+                let state_num: u32 = (*(*last_state)).into();
+                let (mut address_buf, mut data_buf) = ([last_state.addr() as u8 | Self::RW_BIT; 1], state_num.to_be_bytes());
+                self.spi.transaction(&mut [Operation::TransferInPlace(address_buf.borrow_mut()), Operation::TransferInPlace(data_buf.borrow_mut())])?;
+                **last_state = State::from_addr_and_data(last_state.addr(), u32::from_be_bytes(data_buf));
+            }
+        }
+
         Ok(())
     }
     pub fn write_register<R>(&mut self, register:R) -> Result<reg::SPISTATUS, <SPI as ErrorType>::Error>
