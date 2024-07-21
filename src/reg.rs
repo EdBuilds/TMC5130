@@ -244,7 +244,7 @@ bitfield! {
     pub struct XACTUAL(u32);
     impl Debug;
     i32;
-    pub get, _: 31, 0;
+    pub get, set: 31, 0;
 }
 bitfield! {
     #[derive(Clone, Copy, Default, Eq, Hash, PartialEq)]
