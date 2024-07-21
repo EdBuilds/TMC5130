@@ -62,8 +62,9 @@ where
 
         Ok((status,R::from(u32::from_be_bytes(data_buffer))))
     }
-    pub fn bulk_register_action(&mut self, actions: &mut [Action]) -> Result<(), <SPI as ErrorType>::Error>
+    pub fn bulk_register_action(&mut self, actions: &mut [Action]) -> Result<reg::SPISTATUS, <SPI as ErrorType>::Error>
     {
+        let mut result = reg::SPISTATUS(0);
         let act_len = actions.len();
         let mut extra_transmission = false;
         if let Some(Action::read(_)) = actions.last() {
@@ -84,6 +85,7 @@ where
                     ([state.addr() as u8 | Self::RW_BIT;1], state_num.to_be_bytes())
                 }
             };
+            result = reg::SPISTATUS(address_buf[0]);
             self.spi.transaction(&mut [Operation::TransferInPlace(address_buf.borrow_mut()), Operation::TransferInPlace(data_buf.borrow_mut())])?;
             if i > 0 {
                 if let Action::read(last_state) = &mut actions[i-1] {
@@ -98,10 +100,10 @@ where
                 let (mut address_buf, mut data_buf) = ([last_state.addr() as u8 | Self::RW_BIT; 1], state_num.to_be_bytes());
                 self.spi.transaction(&mut [Operation::TransferInPlace(address_buf.borrow_mut()), Operation::TransferInPlace(data_buf.borrow_mut())])?;
                 **last_state = State::from_addr_and_data(last_state.addr(), u32::from_be_bytes(data_buf));
+                result = reg::SPISTATUS(address_buf[0]);
             }
         }
-
-        Ok(())
+        Ok(result)
     }
     pub fn write_register<R>(&mut self, register:R) -> Result<reg::SPISTATUS, <SPI as ErrorType>::Error>
         where R: reg::WritableRegister
